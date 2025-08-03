@@ -16,7 +16,9 @@ export default function HomePage() {
     return (
         <>
             <h1>WELCOME TO MY CINEMA</h1>
-            <p className="h3">Here you will find all the trending movies</p>
+            <p className="h3 mb-5">
+                Here you will find all the trending movies
+            </p>
             <div className="row row-cols-2 row-cols-lg-3 g-5">
                 {movies &&
                     movies.map((movie) => {
