@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { data, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function SingleMoviePage() {
     const { id } = useParams();
@@ -48,71 +48,131 @@ export default function SingleMoviePage() {
         return stars;
     };
 
+    const defaultFormData = {
+        name: "",
+        text: "",
+        vote: "",
+    };
+
+    const [formData, setFormData] = useState(defaultFormData);
+
+    const handleFormChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+    };
+
+    const handleSubmit = () => {
+        const url = import.meta.env.VITE_BACKEND_REVIEWS_URL + id;
+        fetch(url, {
+            method: "POST",
+            body: JSON.stringify(formData),
+            headers: {
+                "Content-type": "application/json",
+            },
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setFormData(defaultFormData);
+                fetch(url)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        setMovie(data);
+                    });
+            });
+    };
+
     return (
-        <div className="d-flex flex-column">
-            <div>
-                <button
-                    className="btn btn-dark"
-                    onClick={() => {
-                        navigate(-1);
-                    }}
-                >
-                    ◀️ALL MOVIES
-                </button>
-            </div>
-            {singleMovie && (
-                <div className="card my-5">
-                    <div className="row g-0">
-                        <div className="col-md-4">
-                            <img
-                                src={singleMovie.image}
-                                className="img-fluid rounded-start"
-                                alt=""
-                            />
-                        </div>
-                        <div className="col-md-8">
-                            <div className="card-body">
-                                <h2 className="card-title">
-                                    {singleMovie.title}
-                                </h2>
-                                <p className="h5 mb-5">
-                                    DIRECTED BY {singleMovie.director}
-                                </p>
-                                <p className="card-text">
-                                    PLOT: {singleMovie.abstract}
-                                </p>
-                                <p className="card-text">
-                                    GENRE: {singleMovie.genre}
-                                </p>
-                                <p className="card-text">
-                                    RELEASED IN {singleMovie.release_year}
-                                </p>
-                                <small className="card-text">
-                                    Last updated {singleMovie.updated_at}
-                                </small>
+        <>
+            <div className="d-flex flex-column">
+                <div>
+                    <button
+                        className="btn btn-dark"
+                        onClick={() => {
+                            navigate(-1);
+                        }}
+                    >
+                        ◀️ALL MOVIES
+                    </button>
+                </div>
+                {singleMovie && (
+                    <div className="card my-5">
+                        <div className="row g-0">
+                            <div className="col-md-4">
+                                <img
+                                    src={singleMovie.image}
+                                    className="img-fluid rounded-start"
+                                    alt=""
+                                />
+                            </div>
+                            <div className="col-md-8">
+                                <div className="card-body">
+                                    <h2 className="card-title">
+                                        {singleMovie.title}
+                                    </h2>
+                                    <p className="h5 mb-5">
+                                        DIRECTED BY {singleMovie.director}
+                                    </p>
+                                    <p className="card-text">
+                                        PLOT: {singleMovie.abstract}
+                                    </p>
+                                    <p className="card-text">
+                                        GENRE: {singleMovie.genre}
+                                    </p>
+                                    <p className="card-text">
+                                        RELEASED IN {singleMovie.release_year}
+                                    </p>
+                                    <small className="card-text">
+                                        Last updated {singleMovie.updated_at}
+                                    </small>
+                                </div>
                             </div>
                         </div>
                     </div>
+                )}
+                <div>
+                    <form onSubmit={handleSubmit}>
+                        <input
+                            onChange={handleFormChange}
+                            name="name"
+                            type="text"
+                            value={formData.name}
+                        />
+                        <input
+                            onChange={handleFormChange}
+                            name="vote"
+                            type="number"
+                            value={formData.vote}
+                        />
+                        <input
+                            onChange={handleFormChange}
+                            name="text"
+                            type="text"
+                            value={formData.text}
+                        />
+                        <button className="btn btn-info">Share review</button>
+                    </form>
                 </div>
-            )}
-            <div className="row g-3">
-                {movieReviews &&
-                    movieReviews.map((review) => {
-                        return (
-                            <div key={review.id} className="col">
-                                <div className="card">
-                                    <div className="card-body">
-                                        <h6 className="card-title">
-                                            {review.name}
-                                        </h6>
-                                        <p>{renderStars(review.vote)}</p>
-                                        <p>{review.text}</p>
+                <div className="row row-cols-2 row-cols-lg-3 g-3">
+                    {movieReviews &&
+                        movieReviews.map((review) => {
+                            return (
+                                <div key={review.id} className="col">
+                                    <div className="card">
+                                        <div className="card-body">
+                                            <h6 className="card-title">
+                                                {review.name}
+                                            </h6>
+                                            <p>{renderStars(review.vote)}</p>
+                                            <p>{review.text}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                </div>
             </div>
-        </div>
+        </>
     );
 }
